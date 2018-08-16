@@ -21,7 +21,7 @@ load_pubkey $PAYLOAD
 configure_git_ssl_verification $PAYLOAD
 configure_credentials $PAYLOAD
 
-echo "Payload: ${PAYLOAD}"
+echo "Payload: ${PAYLOAD}" >&2
 REGISTRY_URL=$(jq -r '.source["registry-url"] // ""' < $PAYLOAD)
 REGISTRY_USER=$(jq -r '.source["registry-user"] // ""' < $PAYLOAD)
 REGISTRY_PASS=$(jq -r '.source["registry-pass"] // ""' < $PAYLOAD)
@@ -37,9 +37,9 @@ YARN_SUPPORT=$(jq -r '.source["yarn-support"] // false' < $PAYLOAD)
 BOWER_SUPPORT=$(jq -r '.source["bower-support"] // false' < $PAYLOAD)
 
 cd "$GIT_DEST_DIR/$PROJECT_PATH"
-echo "registry: ${REGISTRY_URL}"
-echo "USER: ${REGISTRY_USER}"
-echo "P: ${REGISTRY_PASS}"
+echo "registry: ${REGISTRY_URL}" >&2
+echo "USER: ${REGISTRY_USER}" >&2
+echo "P: ${REGISTRY_PASS}" >&2
 
 if [ -n "$http_proxy" ]; then
     echo "Set npm httproxy: "$http_proxy"" >&2
@@ -52,7 +52,7 @@ if [ -n "$REGISTRY_USER" ] && [ -n "$REGISTRY_PASS" ] && [ -n "$REGISTRY_MAIL" ]
     if [ -n "$REGISTRY_URL" ] && [ -n "$REGISTRY_SCOPE" ]; then
         npm-cli-login -u $REGISTRY_USER -p $REGISTRY_PASS -e $REGISTRY_MAIL -r $REGISTRY_URL -s $REGISTRY_SCOPE
     elif [ -n "$REGISTRY_URL" ]; then
-        echo "Logging In COrrectly"
+        echo "Logging In COrrectly" >&2
         npm-cli-login -u $REGISTRY_USER -p $REGISTRY_PASS -e $REGISTRY_MAIL -r $REGISTRY_URL
     else
         npm-cli-login -u $REGISTRY_USER -p $REGISTRY_PASS -e $REGISTRY_MAIL
@@ -73,7 +73,7 @@ if [ "$YARN_SUPPORT" != "false" ]; then
 elif [ "$NPM_CI_SUPPORT" != "false" ]; then
     NODE_ENV=development && npm ci --quiet >&2
 else
-    echo "Installing COrrectyly"
+    echo "Installing COrrectyly" >&2
     NODE_ENV=development && npm install --verbose >&2
 fi
 
