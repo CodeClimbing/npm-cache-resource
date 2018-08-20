@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:latest
+FROM mhart/alpine-node:8
 
 MAINTAINER Yeray Medina López <ymedlop@gmail.com>
 
@@ -19,10 +19,12 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 
 RUN apk add --update \
     openssl \
+    wget \
     sed \
     ca-certificates \
     bash \
     openssh \
+    openssl \
     make \
     git \
     jq \

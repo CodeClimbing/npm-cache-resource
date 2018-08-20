@@ -4,8 +4,8 @@ set -x
 set -e
 set -o pipefail
 
-exec 3>&1 # make stdout available as fd 3 for the result
-exec 1>&2 # redirect all output to stderr for logging
+# exec 3>&1 # make stdout available as fd 3 for the result
+# exec 1>&2 # redirect all output to stderr for logging
 
 source /opt/resource/git/common.sh
 
@@ -21,7 +21,6 @@ load_pubkey $PAYLOAD
 configure_git_ssl_verification $PAYLOAD
 configure_credentials $PAYLOAD
 
-echo "Payload: ${PAYLOAD}" >&2
 REGISTRY_URL=$(jq -r '.source["registry-url"] // ""' < $PAYLOAD)
 REGISTRY_USER=$(jq -r '.source["registry-user"] // ""' < $PAYLOAD)
 REGISTRY_PASS=$(jq -r '.source["registry-pass"] // ""' < $PAYLOAD)
@@ -37,9 +36,7 @@ YARN_SUPPORT=$(jq -r '.source["yarn-support"] // false' < $PAYLOAD)
 BOWER_SUPPORT=$(jq -r '.source["bower-support"] // false' < $PAYLOAD)
 
 cd "$GIT_DEST_DIR/$PROJECT_PATH"
-echo "registry: ${REGISTRY_URL}" >&2
-echo "USER: ${REGISTRY_USER}" >&2
-echo "P: ${REGISTRY_PASS}" >&2
+
 
 if [ -n "$http_proxy" ]; then
     echo "Set npm httproxy: "$http_proxy"" >&2
@@ -48,32 +45,15 @@ if [ -n "$http_proxy" ]; then
 fi
 
 
-if [ -n "$REGISTRY_USER" ] && [ -n "$REGISTRY_PASS" ] && [ -n "$REGISTRY_MAIL" ]; then
-    if [ -n "$REGISTRY_URL" ] && [ -n "$REGISTRY_SCOPE" ]; then
-        npm-cli-login -u $REGISTRY_USER -p $REGISTRY_PASS -e $REGISTRY_MAIL -r $REGISTRY_URL -s $REGISTRY_SCOPE
-    elif [ -n "$REGISTRY_URL" ]; then
-        echo "Logging In COrrectly" >&2
-        npm-cli-login -u $REGISTRY_USER -p $REGISTRY_PASS -e $REGISTRY_MAIL -r $REGISTRY_URL
-    else
-        npm-cli-login -u $REGISTRY_USER -p $REGISTRY_PASS -e $REGISTRY_MAIL
-    fi
-else
-    if [ -n "$TOKEN" ]; then
-        echo "always-auth=true" >> ~/.npmrc
-        echo "_auth="$TOKEN"" >> ~/.npmrc
-    fi
-    if [ -n "$REGISTRY" ]; then
-        echo "Set Private Registry: "$REGISTRY"" >&2
-        npm config set registry $REGISTRY
-    fi
-fi
+
+npm set registry $REGISTRY_URL
+
 
 if [ "$YARN_SUPPORT" != "false" ]; then
     NODE_ENV=development && yarn install >&2
 elif [ "$NPM_CI_SUPPORT" != "false" ]; then
     NODE_ENV=development && npm ci --quiet >&2
 else
-    echo "Installing COrrectyly" >&2
     NODE_ENV=development && npm install --verbose >&2
 fi
 
