@@ -62,4 +62,4 @@ if [ "$BOWER_SUPPORT" != "false" ]; then
     mv bower_components "$DEST_DIR/"
 fi
 
-mv node_modules "$DEST_DIR/"
+mv node_modules package-lock.json "$DEST_DIR/"
