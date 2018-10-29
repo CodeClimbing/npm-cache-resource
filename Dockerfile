@@ -16,6 +16,8 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0" \
       org.label-schema.license="MIT"
+# install different version of npm
+RUN npm install -g npm@5.6.0
 
 RUN apk add --update \
     openssl \
@@ -61,5 +63,6 @@ RUN chmod +x /opt/resource/check /opt/resource/in /opt/resource/out
 
 # install npm-clip-login to help us with the npm login
 RUN npm install -g npm-cli-login
+
 
 HEALTHCHECK NONE
